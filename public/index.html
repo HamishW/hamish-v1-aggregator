@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Consultation List</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles/style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="scripts/main.js" defer></script>
+</head>
+<body class="bg-white p-4">
+  <nav>
+    <div class="nav-container">
+      <div class="flex flex-col">
+        <div class="flex items-center">
+          <h1 class="text-3xl font-bold text-black">APAC Combined Activity List</h1>
+        </div>
+        <div class="flex space-x-4">
+          <h2 id="totalConsultations" class="text-gray-600 text-xl">Total Consultations: 0</h2>
+          <h2 id="openConsultations" class="text-gray-600 text-xl">Open Consultations: 0</h2>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <!-- Spinner -->
+    <div id="spinner" class="hidden fixed inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+      <div class="loader"></div>
+    </div>    
+
+    <!-- Chart Tabs -->
+    <div class="chart-container mt-8">
+      <ul class="flex border-b">
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab1">Tags Chart</a>
+        </li>
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab2">Monthly Chart</a>
+        </li>
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab3">Source Chart</a>
+        </li>
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab4">APAC Region Chart</a>
+        </li>
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab5">Gov Level Chart</a>
+        </li>
+        <li class="mr-1">
+          <a class="tab bg-white inline-block py-2 px-4 text-blue-500 font-semibold rounded-md" href="#" data-tab="tab6">Day of Week Chart</a>
+        </li>
+      </ul>
+      <div class="border p-4">
+        <div id="tab1" class="tab-content hidden">
+          <h1>Activities per Tag</h1>
+          <canvas id="tagChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+        <div id="tab2" class="tab-content hidden">
+          <h1>Activities Opening per Month</h1>
+          <canvas id="lineChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+        <div id="tab3" class="tab-content hidden">
+          <h1>Activities per Source</h1>
+          <canvas id="sourceNameChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+        <div id="tab4" class="tab-content hidden">
+          <h1>Activities per APAC Region</h1>
+          <canvas id="apacRegionChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+        <div id="tab5" class="tab-content hidden">
+          <h1>Activities per Government Level</h1>
+          <canvas id="govLevelChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+        <div id="tab6" class="tab-content hidden">
+          <h1>Day of the Week Chart</h1>
+          <canvas id="dayOfWeekChart" class="chart-canvas" width="400" height="450"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="mb-4">
+      <div class="relative inline-block text-left">
+        <button id="govLevelFilterButton" class="px-4 py-2 bg-blue-500 text-white rounded-md">Filter by Government Level</button>
+        <div id="govLevelFilterDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+          <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <div class="dropdown-item"><input type="checkbox" value="Central"> Central</div>
+            <div class="dropdown-item"><input type="checkbox" value="Local"> Local</div>
+            <!-- Add more items as needed -->
+          </div>
+        </div>
+      </div>
+      <div class="relative inline-block text-left">
+        <button id="apacRegionFilterButton" class="px-4 py-2 bg-blue-500 text-white rounded-md">Filter by APAC Region</button>
+        <div id="apacRegionFilterDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+          <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <div class="dropdown-item"><input type="checkbox" value="NZ"> NZ</div>
+            <div class="dropdown-item"><input type="checkbox" value="AU"> AU</div>
+            <!-- Add more items as needed -->
+          </div>
+        </div>
+      </div>
+      <div class="relative inline-block text-left">
+        <button id="tagFilterButton" class="px-4 py-2 bg-blue-500 text-white rounded-md">Filter by Tag</button>
+        <div id="tagFilterDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+          <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <div class="dropdown-item"><input type="checkbox" value="Health"> Health</div>
+            <div class="dropdown-item"><input type="checkbox" value="Education"> Education</div>
+            <!-- Add more items as needed -->
+          </div>
+        </div>
+      </div>
+      <div class="relative inline-block text-left">
+        <label for="startDatePicker" class="px-4 py-2">Start Date:</label>
+        <input type="date" id="startDatePicker" class="px-4 py-2 border rounded-md">
+        <label for="endDatePicker" class="px-4 py-2">End Date:</label>
+        <input type="date" id="endDatePicker" class="px-4 py-2 border rounded-md">
+      </div>
+      <button id="applyFiltersButton" class="px-4 py-2 bg-green-500 text-white rounded-md">Apply Filters</button>
+      <button id="clearFiltersButton" class="px-4 py-2 bg-red-500 text-white rounded-md">Clear Filters</button>
+    </div>
+
+    <!-- Sorting and Filtered Count -->
+    <div class="flex justify-between items-center mb-4">
+      <div id="filteredCount" class="text-xl text-gray-600">Filtered Consultations: 0</div>
+      <div class="flex space-x-2">
+        <button id="sortNewestButton" class="px-4 py-2 bg-blue-500 text-white rounded-md">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <button id="sortOldestButton" class="px-4 py-2 bg-blue-500 text-white rounded-md">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Consultation Table -->
+    <table class="w-full border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border border-gray-300 px-4 py-2">Title</th>
+          <th class="border border-gray-300 px-4 py-2">Start Date</th>
+          <th class="border border-gray-300 px-4 py-2">End Date</th>
+          <th class="border border-gray-300 px-4 py-2">Status</th>
+          <th class="border border-gray-300 px-4 py-2">Tags</th>
+        </tr>
+      </thead>
+      <tbody id="consultationList">
+        <!-- Table rows will be added here dynamically -->
+      </tbody>
+    </table>
+    <button id="exportCsvButton" class="px-4 py-2 mt-8 bg-blue-500 text-white rounded-md hidden">Export to CSV</button>
+  </div>
+  <div id="scrollToTopButton" class="fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded-full cursor-pointer hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+  </div>
+</body>
+</html>

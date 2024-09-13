@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "default": "hamish-aggregator-v1"
+  },
+  "targets": {
+    "hamish-aggregator-v1": {
+      "hosting": {
+        "hamish-aggregator-v1": [
+          "hamish-aggregator-v1"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
